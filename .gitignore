@@ -1,3 +1,4 @@
 .vscode
 _temp
 *.pyc
+*.egg-info
