@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 
-from postcard import converter
+from postcard import templater
 
 
 class Postcard():
@@ -30,11 +30,7 @@ class Postcard():
     def create(self, msg_plain, template, tags):
         """."""
         self.msg_plain = msg_plain
-
-        message = converter.Converter()
-        message.setup(template)
-
-        self.msg_html = message.render(tags)
+        self.msg_html = templater.render(template, tags)
 
     def package(self, images=None):
         """."""
