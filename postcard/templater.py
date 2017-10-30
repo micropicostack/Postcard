@@ -1,29 +1,13 @@
 #!/usr/bin/python
-"""Converter description."""
+"""Handle jinja2 styled templates"""
 import os
 import jinja2
 
 
 def render(file_path, tags):
     """
-    The function renders a jinja2 styled template file.
-
-    Parameters
-    ----------
-    file_path: str
-        Path to the temaplate file
-    tags: dict
-        Template tag with the value to be inserted
-
-    Returns
-    -------
-    str
-        Rendered template.
-
-    Raises
-    ------
-    ValueError
-        Provided input file does not exist
+    Renders a jinja2 styled template file provided by the file_path parameter
+    with the values in the tags dictionary parameter. The output is a string.
     """
     abspath = os.path.abspath(file_path)
     if os.path.exists(abspath):
