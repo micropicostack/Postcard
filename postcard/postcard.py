@@ -1,6 +1,5 @@
+#!/usr/bin/python
 """Description"""
-import smtplib
-
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
@@ -18,14 +17,6 @@ class Postcard():
         self.mail = None
         self.msg_html = None
         self.msg_plain = None
-
-    def new_address(self, subject, sender, recipients):
-        """."""
-        self.subject = subject
-        self.sender = sender
-        self.recipients = recipients
-
-        self.mail = None
 
     def create(self, msg_plain, template, tags):
         """."""
@@ -56,23 +47,3 @@ class Postcard():
                 img = MIMEImage(value)
                 img.add_header('Content-ID', key)
                 self.mail.attach(img)
-
-    def send(self, server, port=0, timeout=10, debug=False):
-        """."""
-        mailman = smtplib.SMTP(server, port, timeout=timeout)
-        try:
-            if debug:
-                mailman.set_debuglevel(1)
-
-            mailman.sendmail(self.sender, self.recipients, self.mail.as_string())
-        # except SMTP error and handle it
-        finally:
-            mailman.quit()
-
-    def view_card(self):
-        """."""
-        return self.msg_html
-
-    def view_mail(self):
-        """."""
-        return self.mail

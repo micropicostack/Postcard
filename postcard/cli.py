@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Description"""
-import os
 import json
 import click
 from postcard.postcard import Postcard
+from postcard.mailer import Mailman
 
 
 @click.command()
@@ -34,5 +34,8 @@ def cli(entry):
 
     card.package(images)
 
-    card.send(info['host'], info['port'], timeout=10)
+    mailman = Mailman(info['host'], info['port'])
+    mailman.connect()
+    mailman.deliver(sender, recipients, card.mail)
+
     click.echo('All Done!')
