@@ -26,16 +26,27 @@ def cli(entry):
     template = info['template']['path']
     tags = info['template']['tags']
 
-    card.create(plain_text, template, tags)
+    try:
+        card.create(template, tags)
+    except ValueError as error:
+        click.echo(error)
+        return 0
 
     images = {}
     with open(info['images'][0]['path'], 'rb') as img_file:
         images[info['images'][0]['key']] = img_file.read()
 
-    card.package(images)
+    message = card.bundle(plain_text, images)
 
     mailman = Mailman(info['host'], info['port'])
     mailman.connect()
-    mailman.deliver(sender, recipients, card.mail)
+    mailman.deliver(sender, recipients, message)
 
     click.echo('All Done!')
+
+# my_postcard = Postcard(subject, sender, recipients)
+# my_postcard.create(postcard_template, template_vars)
+# message = postcard.attach(plain, images)
+# mailman = Mailman(host, port)
+# mailman.connect()
+# mailman.deliver(subject, sender, recipients, message)

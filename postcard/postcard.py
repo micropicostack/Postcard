@@ -12,38 +12,38 @@ class Postcard():
     def __init__(self, subject, sender, recipients):
         self.subject = subject
         self.sender = sender
-        self.recipients = recipients
 
-        self.mail = None
-        self.msg_html = None
-        self.msg_plain = None
-
-    def create(self, msg_plain, template, tags):
-        """."""
-        self.msg_plain = msg_plain
-        self.msg_html = templater.render(template, tags)
-
-    def package(self, images=None):
-        """."""
-        if self.recipients is None:
+        if recipients is None:
             raise ValueError('You must specified recipients attribute!')
 
-        self.mail = MIMEMultipart('related')
+        self.recipients = recipients
 
-        self.mail['Subject'] = self.subject
-        self.mail['From'] = self.sender
-        self.mail['To'] = ','.join(self.recipients)
+        self.msg_html = None
 
-        self.mail.add_header('Content-Type', 'text/html')
+    def create(self, template, tags):
+        """."""
+        self.msg_html = templater.render(template, tags)
+
+    def bundle(self, plain_txt, images=None):
+        """."""
+        message = MIMEMultipart('related')
+
+        message['Subject'] = self.subject
+        message['From'] = self.sender
+        message['To'] = ','.join(self.recipients)
+
+        message.add_header('Content-Type', 'text/html')
 
         msg_alt = MIMEMultipart('alternative')
-        self.mail.attach(msg_alt)
+        message.attach(msg_alt)
 
-        msg_alt.attach(MIMEText(self.msg_plain, 'plain'))
+        msg_alt.attach(MIMEText(plain_txt, 'plain'))
         msg_alt.attach(MIMEText(self.msg_html, 'html'))
 
         if images:
             for key, value in images.items():
                 img = MIMEImage(value)
                 img.add_header('Content-ID', key)
-                self.mail.attach(img)
+                message.attach(img)
+
+        return message
