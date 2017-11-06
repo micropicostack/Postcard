@@ -4,8 +4,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 
-from postcard import templater
-
 
 class Postcard():
     """."""
@@ -13,37 +11,41 @@ class Postcard():
         self.subject = subject
         self.sender = sender
 
-        if recipients is None:
+        if not recipients:
             raise ValueError('You must specified recipients attribute!')
 
         self.recipients = recipients
+        self.message = None
 
-        self.msg_html = None
-
-    def create(self, template, tags):
+    def create(self, txt_msg, hmtl_msg):
         """."""
-        self.msg_html = templater.render(template, tags)
+        self.message = MIMEMultipart('related')
 
-    def bundle(self, plain_txt, images=None):
-        """."""
-        message = MIMEMultipart('related')
+        self.message['Subject'] = self.subject
+        self.message['From'] = self.sender
+        self.message['To'] = ','.join(self.recipients)
 
-        message['Subject'] = self.subject
-        message['From'] = self.sender
-        message['To'] = ','.join(self.recipients)
-
-        message.add_header('Content-Type', 'text/html')
+        self.message.add_header('Content-Type', 'text/html')
 
         msg_alt = MIMEMultipart('alternative')
-        message.attach(msg_alt)
+        self.message.attach(msg_alt)
 
-        msg_alt.attach(MIMEText(plain_txt, 'plain'))
-        msg_alt.attach(MIMEText(self.msg_html, 'html'))
+        msg_alt.attach(MIMEText(txt_msg, 'plain'))
+        msg_alt.attach(MIMEText(hmtl_msg, 'html'))
 
-        if images:
-            for key, value in images.items():
-                img = MIMEImage(value)
-                img.add_header('Content-ID', key)
-                message.attach(img)
+    def add_image(self, image):
+        """."""
+        key, file_path = image
+        with open(file_path, 'rb') as f:
+            img = f.read()
+        cid = MIMEImage(img)
+        cid.add_header('Content-ID', key)
+        self.message.attach(cid)
 
-        return message
+    def add_file(self):
+        """."""
+        pass
+
+    def package(self):
+        """."""
+        return self.message.as_string()

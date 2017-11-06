@@ -4,6 +4,7 @@ import json
 import click
 from postcard.postcard import Postcard
 from postcard.mailer import Mailman
+import postcard.templater as templater
 
 
 @click.command()
@@ -20,33 +21,19 @@ def cli(entry):
     sender = info['sender']
     recipients = info['recipients']
 
-    card = Postcard(subject, sender, recipients)
-
-    plain_text = info['plain']
+    txt_msg = info['plain']
     template = info['template']['path']
     tags = info['template']['tags']
 
-    try:
-        card.create(template, tags)
-    except ValueError as error:
-        click.echo(error)
-        return 0
+    html_msg = templater.render(template, tags)
 
-    images = {}
-    with open(info['images'][0]['path'], 'rb') as img_file:
-        images[info['images'][0]['key']] = img_file.read()
-
-    message = card.bundle(plain_text, images)
+    my_postcard = Postcard(subject, sender, recipients)
+    my_postcard.create(txt_msg, html_msg)
+    my_postcard.add_image(info['images'][0])
+    message = my_postcard.package()
 
     mailman = Mailman(info['host'], info['port'])
     mailman.connect()
     mailman.deliver(sender, recipients, message)
 
     click.echo('All Done!')
-
-# my_postcard = Postcard(subject, sender, recipients)
-# my_postcard.create(postcard_template, template_vars)
-# message = postcard.attach(plain, images)
-# mailman = Mailman(host, port)
-# mailman.connect()
-# mailman.deliver(subject, sender, recipients, message)

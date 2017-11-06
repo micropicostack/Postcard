@@ -42,7 +42,7 @@ class Mailman:
             raise ValueError('You must specified recipients attribute!')
 
         try:
-            self.server.sendmail(sender, recipients, message.as_string())
+            self.server.sendmail(sender, recipients, message)
         except smtplib.SMTPDataError as errormsg:
             raise MailmanSendError("Couldn't send message: %s" % (errormsg))
         except smtplib.socket.timeout:
